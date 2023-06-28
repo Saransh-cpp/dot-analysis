@@ -57,9 +57,9 @@ display lbls (nm, ngh@(Neighbours v parents children))
     prefixedSet c = map ((T.pack ("  " ++ [c]) <>) . unsafeLookup) . Set.toList
     unsafeLookup = fromJust . flip Map.lookup lbls
 
-top5 :: (Ord n, Ord f) => DependencyGraph n (Scoring f) -> [(n, Neighbours n f)]
-top5 = fmap (fmap (fmap degreeScore))
-     . take 5
+top10 :: (Ord n, Ord f) => DependencyGraph n (Scoring f) -> [(n, Neighbours n f)]
+top10 = fmap (fmap (fmap degreeScore))
+     . take 10
      . List.sortBy (flip (compare `on` (degreeScore . value . snd)))
      . Map.toList
      . Map.filter (not . inTheFringe . value)
@@ -82,6 +82,6 @@ main = do
   (fp : _) <- getArgs
   deps <- fromFile fp
   let coloured = colour scoring deps
-  let heavies = top5 coloured
+  let heavies = top10 coloured
   for_ heavies $ T.putStrLn . display (labels deps)
   toFile (takeDirectory fp </> "updated-" <> takeFileName fp) (shading coloured)
